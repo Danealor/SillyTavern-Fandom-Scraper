@@ -65,7 +65,9 @@ async function scrapeMediaWiki(url: string, filter?: RegExp): Promise<Page[]> {
 
     while (nextPageUrl !== '') {
         const fetchResponse = await fetch(url + nextPageUrl, { redirect: 'manual', headers: { 'User-Agent': USER_AGENT } });
-        const fetchContent = await fetchResponse.text();
+        let fetchContent = await fetchResponse.text();
+        // Remove style tags to avoid CSS parsing errors with modern CSS features
+        fetchContent = fetchContent.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
         const dom = new JSDOM(fetchContent);
         const content = dom.window.document.querySelector('.mw-allpages-body');
         const nextPage = dom.window.document.querySelector('.mw-allpages-nav');
@@ -139,7 +141,9 @@ async function scrapeFandom(fandom: string, filter?: RegExp): Promise<Page[]> {
     while (nextPageUrl !== '') {
         const currentUrl = new URL(nextPageUrl, baseUrl);
         const fetchResponse = await fetch(currentUrl, { redirect: 'manual', headers: { 'User-Agent': USER_AGENT } });
-        const fetchContent = await fetchResponse.text();
+        let fetchContent = await fetchResponse.text();
+        // Remove style tags to avoid CSS parsing errors with modern CSS features
+        fetchContent = fetchContent.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
         const dom = new JSDOM(fetchContent);
         const content = dom.window.document.querySelector('.mw-allpages-body');
         const nextPage = dom.window.document.querySelector('.mw-allpages-nav');
